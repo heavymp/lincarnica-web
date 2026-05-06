@@ -7,7 +7,10 @@
     "dev": "vite --host --port 3000",
     "build": "vite build",
     "preview": "vite preview --host --port 3000",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "github:login": "PATH=\"$HOME/.local/bin:$PATH\" gh auth login -h github.com -p https -w",
+    "github:setup-git": "PATH=\"$HOME/.local/bin:$PATH\" gh auth setup-git",
+    "github:push": "bash scripts/github-sync.sh"
   },
   "dependencies": {
     "react": "^19.2.0",
