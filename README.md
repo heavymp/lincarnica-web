@@ -21,6 +21,10 @@ Static React + Vite “uskoro stižemo” page for **Udruga mještana Ugljan –
 - **History:** [`CHANGELOG.md`](./CHANGELOG.md).
 - **On release:** bump `"version"`, add a section to `CHANGELOG.md`, then `npm run lint` and `npm run build`. The site footer shows the same version (`vX.Y.Z`).
 
+## CI
+
+Every push and pull request to **`main`** runs **GitHub Actions**: **`npm ci`**, **`npm run lint`**, **`npm run build`**. That keeps **`main`** buildable as you add features or upgrade dependencies.
+
 ## Deploy
 
 `npm run build` → host the **`dist/`** folder on your static host or CDN.

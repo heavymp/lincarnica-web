@@ -14,6 +14,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Removed
 
+## [0.0.3] — 2026-05-06
+
+### Added
+
+- **GitHub Actions** workflow (`.github/workflows/ci.yml`): on **`main`** pushes and PRs — **`npm ci`**, **`npm run lint`**, **`npm run build`**.
+- **`engines.node`** (`>=20`) in **`package.json`** as a documented baseline.
+
 ## [0.0.2] — 2026-05-06
 
 ### Added
