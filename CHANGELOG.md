@@ -14,6 +14,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Removed
 
+## [0.0.2] — 2026-05-06
+
+### Added
+
+- **`repository`** in **`package.json`**; footer **version** links to **`CHANGELOG.md`** on GitHub (opens in a new tab).
+
+### Removed
+
+- **`scripts/github-sync.sh`** and **`npm run github:*`** helpers; GitHub CLI instructions removed from **`README.md`** (use normal **`git push`**).
+
 ---
 
 ## [0.0.1] — 2026-05-06
