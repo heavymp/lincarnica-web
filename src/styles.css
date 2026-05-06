@@ -78,6 +78,17 @@ h1 {
   opacity: 0.85;
 }
 
+a.version-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, currentcolor 35%, transparent);
+  text-underline-offset: 0.15em;
+}
+
+a.version-link:hover {
+  text-decoration-color: color-mix(in oklab, currentcolor 70%, transparent);
+}
+
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }

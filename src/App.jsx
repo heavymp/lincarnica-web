@@ -22,10 +22,27 @@ const App = () => {
         <div className="divider" aria-hidden="true" />
         <p className="fineprint">
           Hvala na strpljenju
-          <span className="version-tag" title={`Verzija ${__APP_VERSION__}`}>
-            {' '}
-            · v{__APP_VERSION__}
-          </span>
+          {__CHANGELOG_URL__ ? (
+            <>
+              {' '}
+              ·{' '}
+              <a
+                className="version-tag version-link"
+                href={__CHANGELOG_URL__}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={`Verzija ${__APP_VERSION__} — povijest izmjena na GitHubu`}
+                aria-label={`CHANGELOG za verziju ${__APP_VERSION__} (otvara GitHub)`}
+              >
+                v{__APP_VERSION__}
+              </a>
+            </>
+          ) : (
+            <span className="version-tag" title={`Verzija ${__APP_VERSION__}`}>
+              {' '}
+              · v{__APP_VERSION__}
+            </span>
+          )}
         </p>
       </section>
     </main>

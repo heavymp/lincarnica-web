@@ -24,20 +24,3 @@ Static React + Vite “uskoro stižemo” page for **Udruga mještana Ugljan –
 ## Deploy
 
 `npm run build` → host the **`dist/`** folder on your static host or CDN.
-
-## GitHub push (from this machine)
-
-GitHub CLI is expected at **`~/.local/bin/gh`** (install once if missing — see [cli/cli releases](https://github.com/cli/cli/releases)). Put it on your PATH, e.g. add to `~/.bashrc`:
-
-`export PATH="$HOME/.local/bin:$PATH"`
-
-**One-time:** sign in, then let `gh` handle Git HTTPS credentials:
-
-1. `npm run github:login`  
-2. `npm run github:setup-git`
-
-**Create the repo and push `main`** (uses `package.json` `name` as the repo name, or links if it already exists):
-
-`npm run github:push`
-
-Non-interactive / CI: `echo YOUR_PAT | gh auth login --with-token -h github.com` (token needs `repo` scope).
