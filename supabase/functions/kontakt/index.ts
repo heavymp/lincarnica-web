@@ -12,6 +12,30 @@ function json(status, body) {
   });
 }
 
+async function loadBrevo(supabase) {
+  const { data } = await supabase.from('brevo_settings').select('*').eq('id', 1).maybeSingle();
+  if (data) return data;
+
+  const { data: legacy } = await supabase
+    .from('kontakt_settings')
+    .select('brevo_list_id, brevo_obavijesti_list_id, notify_email')
+    .eq('id', 1)
+    .maybeSingle();
+
+  return {
+    api_key: '',
+    sender_kontakt: legacy?.notify_email || '',
+    sender_obavijesti: legacy?.notify_email || '',
+    recipient_kontakt: legacy?.notify_email || '',
+    list_id_kontakt: legacy?.brevo_list_id || '',
+    list_id_obavijesti: legacy?.brevo_obavijesti_list_id || ''
+  };
+}
+
+function resolveApiKey(settings) {
+  return (settings?.api_key || Deno.env.get('BREVO_API_KEY') || '').trim();
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -56,15 +80,11 @@ Deno.serve(async (req) => {
     return json(500, { error: 'Save failed' });
   }
 
-  const { data: settings } = await supabase
-    .from('kontakt_settings')
-    .select('brevo_list_id, notify_email')
-    .eq('id', 1)
-    .maybeSingle();
+  const settings = await loadBrevo(supabase);
+  const brevoKey = resolveApiKey(settings);
 
-  const brevoKey = Deno.env.get('BREVO_API_KEY') ?? '';
   if (brevoKey) {
-    const listId = Number(settings?.brevo_list_id);
+    const listId = Number(settings.list_id_kontakt);
     const contactBody = {
       email,
       attributes: { IME: name, SMS: phone, PORUKA: message.slice(0, 500) },
@@ -84,8 +104,9 @@ Deno.serve(async (req) => {
       body: JSON.stringify(contactBody)
     });
 
-    const notify = (settings?.notify_email || '').trim();
-    if (notify) {
+    const sender = (settings.sender_kontakt || settings.recipient_kontakt || '').trim();
+    const recipient = (settings.recipient_kontakt || settings.sender_kontakt || '').trim();
+    if (sender && recipient) {
       await fetch('https://api.brevo.com/v3/smtp/email', {
         method: 'POST',
         headers: {
@@ -94,8 +115,8 @@ Deno.serve(async (req) => {
           'api-key': brevoKey
         },
         body: JSON.stringify({
-          sender: { email: notify, name: 'Linčarnica' },
-          to: [{ email: notify }],
+          sender: { email: sender, name: 'Linčarnica' },
+          to: [{ email: recipient }],
           replyTo: { email, name },
           subject: `Kontakt: ${name}`,
           textContent: `${name} <${email}>\n${phone}\n\n${message}`

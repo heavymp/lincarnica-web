@@ -23,11 +23,21 @@ export const DEFAULT_KONTAKT = {
   message_label: 'Poruka',
   submit_label: 'Pošalji',
   success_message: 'Hvala! Poruka je poslana.',
-  error_message: 'Slanje nije uspjelo. Pokušajte ponovno.',
-  brevo_list_id: '',
-  brevo_obavijesti_list_id: '',
-  notify_email: ''
+  error_message: 'Slanje nije uspjelo. Pokušajte ponovno.'
 };
+
+export const DEFAULT_BREVO = {
+  api_key: '',
+  sender_kontakt: '',
+  sender_obavijesti: '',
+  recipient_kontakt: '',
+  list_id_kontakt: '',
+  list_id_obavijesti: ''
+};
+
+/** Public-safe columns only (never includes Brevo secrets). */
+export const KONTAKT_PUBLIC_SELECT =
+  'heading, intro, email, phone, address, name_label, email_label, phone_label, message_label, submit_label, success_message, error_message';
 
 export function rowsToContent(rows) {
   const next = { ...DEFAULT_CONTENT };
@@ -54,9 +64,18 @@ export function mapKontakt(row) {
     message_label: row.message_label || DEFAULT_KONTAKT.message_label,
     submit_label: row.submit_label || DEFAULT_KONTAKT.submit_label,
     success_message: row.success_message || DEFAULT_KONTAKT.success_message,
-    error_message: row.error_message || DEFAULT_KONTAKT.error_message,
-    brevo_list_id: row.brevo_list_id || '',
-    brevo_obavijesti_list_id: row.brevo_obavijesti_list_id || '',
-    notify_email: row.notify_email || ''
+    error_message: row.error_message || DEFAULT_KONTAKT.error_message
+  };
+}
+
+export function mapBrevo(row) {
+  if (!row) return { ...DEFAULT_BREVO };
+  return {
+    api_key: row.api_key || '',
+    sender_kontakt: row.sender_kontakt || '',
+    sender_obavijesti: row.sender_obavijesti || '',
+    recipient_kontakt: row.recipient_kontakt || '',
+    list_id_kontakt: row.list_id_kontakt || '',
+    list_id_obavijesti: row.list_id_obavijesti || ''
   };
 }

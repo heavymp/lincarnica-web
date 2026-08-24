@@ -24,6 +24,30 @@ function preview(text) {
   return `${clean.slice(0, 220).trimEnd()}…`;
 }
 
+async function loadBrevo(supabase) {
+  const { data } = await supabase.from('brevo_settings').select('*').eq('id', 1).maybeSingle();
+  if (data) return data;
+
+  const { data: legacy } = await supabase
+    .from('kontakt_settings')
+    .select('notify_email')
+    .eq('id', 1)
+    .maybeSingle();
+
+  return {
+    api_key: '',
+    sender_kontakt: legacy?.notify_email || '',
+    sender_obavijesti: legacy?.notify_email || '',
+    recipient_kontakt: legacy?.notify_email || '',
+    list_id_kontakt: '',
+    list_id_obavijesti: ''
+  };
+}
+
+function resolveApiKey(settings) {
+  return (settings?.api_key || Deno.env.get('BREVO_API_KEY') || '').trim();
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -74,14 +98,9 @@ Deno.serve(async (req) => {
   if (subError) return json(500, { error: 'Subscribers failed' });
   if (!subscribers?.length) return json(200, { ok: true, sent: 0 });
 
-  const { data: settings } = await supabase
-    .from('kontakt_settings')
-    .select('notify_email')
-    .eq('id', 1)
-    .maybeSingle();
-
-  const brevoKey = Deno.env.get('BREVO_API_KEY') ?? '';
-  const from = (settings?.notify_email || '').trim();
+  const settings = await loadBrevo(supabase);
+  const brevoKey = resolveApiKey(settings);
+  const from = (settings.sender_obavijesti || settings.sender_kontakt || '').trim();
   if (!brevoKey || !from) {
     return json(200, { ok: true, sent: 0, skipped: 'brevo_not_configured' });
   }

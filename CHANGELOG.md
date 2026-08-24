@@ -14,6 +14,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Removed
 
+## [0.7.0] — 2026-08-24
+
+### Added
+
+- Brevo **API key** editable in `/admin/kontakt` (stored in private `brevo_settings`, not public).
+- Separate Brevo **Sender** addresses for Kontakt vs Obavijesti, plus Kontakt recipient (To).
+
+### Changed
+
+- Public site no longer loads Brevo credentials from `kontakt_settings`.
+
 ## [0.6.1] — 2026-08-24
 
 ### Changed

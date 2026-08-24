@@ -42,14 +42,14 @@ Uploading `dist/` to Hostinger alone does **not** update the database. Schema up
    - `VITE_SUPABASE_ANON_KEY`
 4. Create an editor login: **Authentication → Users → Add user** (email + password). Keep public signup off.
 5. Open **`/admin`** on the site to edit content. Table Editor still works as a fallback.
-6. Optional Brevo: create an API key + list ID, set `brevo_list_id` / `notify_email` in Kontakt (advanced), then store `BREVO_API_KEY` as a Supabase secret.
+6. Optional Brevo: in `/admin/kontakt` set API key, Sender — Kontakt, Sender — Obavijesti, List IDs, and recipient. Also set Supabase Secret `SITE_URL` for unsubscribe links.
 
 ## Admin (`/admin`)
 
 1. Run the latest SQL (`schema.sql` or new files in `supabase/migrations/`).
 2. **Authentication → Users → Add user** (email + password).
 3. Visit `https://your-domain/admin` and sign in.
-4. For email (kontakt + obavijesti pretplate): deploy Edge Functions, set Supabase secrets `BREVO_API_KEY` and `SITE_URL`, and fill Brevo fields under Kontakt → Napredno.
+4. For email (kontakt + obavijesti pretplate): deploy Edge Functions, set Supabase Secret `SITE_URL`, and fill Brevo in `/admin/kontakt` (API key, Senders, List IDs). Optional fallback: Supabase Secret `BREVO_API_KEY`.
 
 Kinds for obavijesti: Obavijest, Sastanak, Događaj, Fešta. Past dated items stay visible but grey on the public site.
 
@@ -85,9 +85,13 @@ Seeds are inserted only if missing — migrations **do not overwrite** your edit
 
 Email subscriptions (`active`, unsubscribe `token`). Managed in `/admin/pretplate`.
 
+### `brevo_settings` (single row `id = 1`, admin-only)
+
+`api_key`, `sender_kontakt`, `sender_obavijesti`, `recipient_kontakt`, `list_id_kontakt`, `list_id_obavijesti`.
+
 ### `kontakt_settings` (single row `id = 1`)
 
-Headings, labels, email/phone/address, success/error text, `brevo_list_id`, `brevo_obavijesti_list_id`, `notify_email`.
+Headings, labels, email/phone/address, success/error text (public-safe fields only on the site).
 
 ### `kontakt_poruke`
 
@@ -121,6 +125,6 @@ No VPS required.
 
 ## Version
 
-- Source of truth: `package.json` → `"version"` (currently **0.6.1**).
+- Source of truth: `package.json` → `"version"` (currently **0.7.0**).
 - History: [`CHANGELOG.md`](./CHANGELOG.md).
 - On release: bump version, update changelog, then lint/build.

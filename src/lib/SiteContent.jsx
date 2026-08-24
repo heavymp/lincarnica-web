@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import {
   DEFAULT_CONTENT,
   DEFAULT_KONTAKT,
+  KONTAKT_PUBLIC_SELECT,
   mapKontakt,
   rowsToContent
 } from './content.js';
@@ -26,7 +27,7 @@ export const SiteContentProvider = ({ children }) => {
     const load = async () => {
       const [copyRes, kontaktRes] = await Promise.all([
         supabase.from('site_content').select('key, value'),
-        supabase.from('kontakt_settings').select('*').eq('id', 1).maybeSingle()
+        supabase.from('kontakt_settings').select(KONTAKT_PUBLIC_SELECT).eq('id', 1).maybeSingle()
       ]);
 
       if (ignore) return;

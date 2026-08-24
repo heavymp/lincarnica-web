@@ -1,53 +1,94 @@
 import { useEffect, useState } from 'react';
-import { DEFAULT_KONTAKT, mapKontakt } from '../lib/content.js';
+import { DEFAULT_BREVO, DEFAULT_KONTAKT, mapBrevo, mapKontakt } from '../lib/content.js';
 import { supabase } from '../lib/supabase.js';
 
 const KontaktEditor = () => {
   const [form, setForm] = useState(DEFAULT_KONTAKT);
+  const [brevo, setBrevo] = useState(DEFAULT_BREVO);
   const [saving, setSaving] = useState(false);
   const [flash, setFlash] = useState('');
+  const [showKey, setShowKey] = useState(false);
 
   useEffect(() => {
-    supabase
-      .from('kontakt_settings')
-      .select('*')
-      .eq('id', 1)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data) setForm(mapKontakt(data));
-      });
+    Promise.all([
+      supabase.from('kontakt_settings').select('*').eq('id', 1).maybeSingle(),
+      supabase.from('brevo_settings').select('*').eq('id', 1).maybeSingle()
+    ]).then(([kontaktRes, brevoRes]) => {
+      if (kontaktRes.data) setForm(mapKontakt(kontaktRes.data));
+      if (brevoRes.data) setBrevo(mapBrevo(brevoRes.data));
+      else if (!brevoRes.error && kontaktRes.data) {
+        // Fallback if migration not applied yet: map legacy columns.
+        setBrevo(
+          mapBrevo({
+            sender_kontakt: kontaktRes.data.notify_email,
+            sender_obavijesti: kontaktRes.data.notify_email,
+            recipient_kontakt: kontaktRes.data.notify_email,
+            list_id_kontakt: kontaktRes.data.brevo_list_id,
+            list_id_obavijesti: kontaktRes.data.brevo_obavijesti_list_id
+          })
+        );
+      }
+    });
   }, []);
 
   const setField = (name, value) => {
     setForm((current) => ({ ...current, [name]: value }));
   };
 
+  const setBrevoField = (name, value) => {
+    setBrevo((current) => ({ ...current, [name]: value }));
+  };
+
   const save = async (event) => {
     event.preventDefault();
     setSaving(true);
     setFlash('');
-    const { error } = await supabase
+
+    const kontaktPayload = {
+      heading: form.heading,
+      intro: form.intro,
+      email: form.email,
+      phone: form.phone,
+      address: form.address,
+      name_label: form.name_label,
+      email_label: form.email_label,
+      phone_label: form.phone_label,
+      message_label: form.message_label,
+      submit_label: form.submit_label,
+      success_message: form.success_message,
+      error_message: form.error_message
+    };
+
+    const brevoPayload = {
+      api_key: brevo.api_key,
+      sender_kontakt: brevo.sender_kontakt,
+      sender_obavijesti: brevo.sender_obavijesti,
+      recipient_kontakt: brevo.recipient_kontakt,
+      list_id_kontakt: brevo.list_id_kontakt,
+      list_id_obavijesti: brevo.list_id_obavijesti
+    };
+
+    const kontaktRes = await supabase
       .from('kontakt_settings')
-      .update({
-        heading: form.heading,
-        intro: form.intro,
-        email: form.email,
-        phone: form.phone,
-        address: form.address,
-        name_label: form.name_label,
-        email_label: form.email_label,
-        phone_label: form.phone_label,
-        message_label: form.message_label,
-        submit_label: form.submit_label,
-        success_message: form.success_message,
-        error_message: form.error_message,
-        brevo_list_id: form.brevo_list_id,
-        brevo_obavijesti_list_id: form.brevo_obavijesti_list_id,
-        notify_email: form.notify_email
-      })
+      .update(kontaktPayload)
       .eq('id', 1);
+
+    let brevoRes = await supabase.from('brevo_settings').upsert({ id: 1, ...brevoPayload });
+
+    // Legacy fallback: keep old columns in sync if brevo_settings table missing.
+    if (brevoRes.error) {
+      brevoRes = await supabase
+        .from('kontakt_settings')
+        .update({
+          notify_email: brevo.recipient_kontakt || brevo.sender_kontakt,
+          brevo_list_id: brevo.list_id_kontakt,
+          brevo_obavijesti_list_id: brevo.list_id_obavijesti
+        })
+        .eq('id', 1);
+    }
+
     setSaving(false);
-    setFlash(error ? 'Spremanje nije uspjelo.' : 'Spremljeno.');
+    setFlash(kontaktRes.error || brevoRes.error ? 'Spremanje nije uspjelo.' : 'Spremljeno.');
   };
 
   return (
@@ -139,36 +180,90 @@ const KontaktEditor = () => {
         <div className="admin-brevo-head">
           <h3 id="brevo-heading">Brevo</h3>
           <p>
-            Postavke za <strong>Transactional Email</strong> i <strong>Contacts</strong>.
-            API key ostaje u Supabase Secrets (<code>BREVO_API_KEY</code>).
+            Postavke za <strong>API keys</strong>, <strong>Senders</strong>,{' '}
+            <strong>Transactional Email</strong> i <strong>Contacts → Lists</strong>.
           </p>
         </div>
 
         <div className="admin-brevo-grid">
           <label className="admin-brevo-field">
-            <span className="admin-brevo-label">Sender email</span>
+            <span className="admin-brevo-label">API key</span>
             <span className="admin-brevo-desc">
-              Potvrđeni pošiljatelj iz Brevo → Transactional → Settings → Senders.
-              Koristi se za kontakt obrasce i obavijesti pretplatnicima.
+              Brevo → SMTP &amp; API → API keys. Čuva se samo za prijavljene urednike (nije javno).
+              Ako je prazno, koristi se Supabase Secret <code>BREVO_API_KEY</code>.
+            </span>
+            <div className="admin-brevo-key-row">
+              <input
+                type={showKey ? 'text' : 'password'}
+                value={brevo.api_key}
+                onChange={(event) => setBrevoField('api_key', event.target.value)}
+                placeholder="xkeysib-…"
+                autoComplete="off"
+                spellCheck={false}
+              />
+              <button
+                type="button"
+                className="admin-ghost"
+                onClick={() => setShowKey((value) => !value)}
+              >
+                {showKey ? 'Sakrij' : 'Prikaži'}
+              </button>
+            </div>
+          </label>
+
+          <label className="admin-brevo-field">
+            <span className="admin-brevo-label">Sender — Kontakt</span>
+            <span className="admin-brevo-desc">
+              Potvrđeni Sender iz Brevo → Transactional → Settings → Senders. Koristi se kao From
+              za e-mailove s kontakt obrasca.
             </span>
             <input
               type="email"
-              value={form.notify_email}
-              onChange={(event) => setField('notify_email', event.target.value)}
-              placeholder="npr. info@vasadomena.hr"
-              autoComplete="email"
+              value={brevo.sender_kontakt}
+              onChange={(event) => setBrevoField('sender_kontakt', event.target.value)}
+              placeholder="npr. kontakt@vasadomena.hr"
+              autoComplete="off"
+            />
+          </label>
+
+          <label className="admin-brevo-field">
+            <span className="admin-brevo-label">To / recipient — Kontakt</span>
+            <span className="admin-brevo-desc">
+              Adresa koja prima poruke s kontakt obrasca (To). Često ista kao Sender — Kontakt.
+            </span>
+            <input
+              type="email"
+              value={brevo.recipient_kontakt}
+              onChange={(event) => setBrevoField('recipient_kontakt', event.target.value)}
+              placeholder="npr. ured@vasadomena.hr"
+              autoComplete="off"
+            />
+          </label>
+
+          <label className="admin-brevo-field">
+            <span className="admin-brevo-label">Sender — Obavijesti</span>
+            <span className="admin-brevo-desc">
+              Sender za pretplate i obavijesti pretplatnicima (Transactional Email). Može biti drugi
+              od kontakt Sendera.
+            </span>
+            <input
+              type="email"
+              value={brevo.sender_obavijesti}
+              onChange={(event) => setBrevoField('sender_obavijesti', event.target.value)}
+              placeholder="npr. obavijesti@vasadomena.hr"
+              autoComplete="off"
             />
           </label>
 
           <label className="admin-brevo-field">
             <span className="admin-brevo-label">List ID — Kontakt</span>
             <span className="admin-brevo-desc">
-              ID liste iz Brevo → Contacts → Lists. Novi kontakti s obrasca dodaju se u ovu listu.
+              Brevo → Contacts → Lists. Kontakti s obrasca dodaju se u ovu listu.
             </span>
             <input
               inputMode="numeric"
-              value={form.brevo_list_id}
-              onChange={(event) => setField('brevo_list_id', event.target.value)}
+              value={brevo.list_id_kontakt}
+              onChange={(event) => setBrevoField('list_id_kontakt', event.target.value)}
               placeholder="npr. 12"
             />
           </label>
@@ -176,21 +271,20 @@ const KontaktEditor = () => {
           <label className="admin-brevo-field">
             <span className="admin-brevo-label">List ID — Obavijesti</span>
             <span className="admin-brevo-desc">
-              Lista za pretplate na obavijesti (zvono na stranici). Ako je prazno, koristi se List ID —
-              Kontakt.
+              Lista za pretplate (zvono). Ako je prazno, koristi se List ID — Kontakt.
             </span>
             <input
               inputMode="numeric"
-              value={form.brevo_obavijesti_list_id}
-              onChange={(event) => setField('brevo_obavijesti_list_id', event.target.value)}
+              value={brevo.list_id_obavijesti}
+              onChange={(event) => setBrevoField('list_id_obavijesti', event.target.value)}
               placeholder="opcionalno"
             />
           </label>
         </div>
 
         <p className="admin-brevo-note">
-          Za poveznice odjave u mailovima postavite i Supabase Secret <code>SITE_URL</code> (javni
-          URL stranice).
+          Za poveznice odjave u mailovima postavite Supabase Secret <code>SITE_URL</code> (javni URL
+          stranice). API key ovdje ima prednost nad Secretom.
         </p>
       </section>
 

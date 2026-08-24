@@ -439,6 +439,13 @@
   box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.06);
 }
 
+.admin-brevo-key-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.45rem;
+  align-items: center;
+}
+
 .admin-brevo-note {
   margin: 0;
   font-size: 0.82rem;
