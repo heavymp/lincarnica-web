@@ -220,10 +220,13 @@ const NoticesEditor = () => {
           <textarea
             value={form.body}
             onChange={(event) => setField('body', event.target.value)}
-            rows={5}
+            rows={6}
             maxLength={4000}
             required
           />
+          <span className="admin-hint">
+            Prikazuje se u cijelosti kad se obavijest otvori. Prazan red dijeli odlomke.
+          </span>
         </label>
 
         <div className="admin-date-row">

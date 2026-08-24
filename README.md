@@ -71,7 +71,7 @@ Seeds are inserted only if missing — migrations **do not overwrite** your edit
 
 | Column | Meaning |
 |--------|---------|
-| `title` / `body` | Content |
+| `title` / `body` | Title + full text (list preview; tap opens detail sheet) |
 | `kind` | `obavijest` / `sastanak` / `dogadaj` / `festa` |
 | `emoji` | Optional emoji/icon (e.g. 🎉) |
 | `happens_at` | Optional date (past dates stay visible but grey). Time is optional; shown on the site only when set. |
@@ -113,6 +113,6 @@ No VPS required.
 
 ## Version
 
-- Source of truth: `package.json` → `"version"` (currently **0.4.2**).
+- Source of truth: `package.json` → `"version"` (currently **0.5.0**).
 - History: [`CHANGELOG.md`](./CHANGELOG.md).
 - On release: bump version, update changelog, then lint/build.

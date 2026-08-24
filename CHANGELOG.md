@@ -14,6 +14,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Removed
 
+## [0.5.0] — 2026-08-24
+
+### Added
+
+- Tap/click an **Obavijest** to open a polished detail sheet with the full description (list shows a short preview).
+
 ## [0.4.2] — 2026-08-24
 
 ### Changed

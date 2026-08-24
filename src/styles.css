@@ -166,11 +166,39 @@ h1 {
 }
 
 .notice {
-  padding: 1.05rem 1.15rem 1.15rem;
+  padding: 0;
   border: 1px solid var(--line);
   border-radius: 1.15rem;
   background: #fff;
   box-shadow: 0 8px 24px rgb(15 35 60 / 0.04);
+  overflow: hidden;
+}
+
+.notice-clickable {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.notice-clickable:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgb(15 35 60 / 0.08);
+}
+
+.notice-open {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 1.05rem 1.15rem 1rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.notice-open:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
 }
 
 .notice-important {
@@ -232,7 +260,148 @@ h1 {
   font-size: 0.95rem;
   line-height: 1.55;
   color: var(--muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.notice-more {
+  display: inline-block;
+  margin-top: 0.55rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--primary);
+  letter-spacing: 0.01em;
+}
+
+.notice-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  align-items: end;
+  justify-items: center;
+  padding: 1rem;
+  background: rgb(15 23 42 / 0.38);
+  backdrop-filter: blur(10px);
+  animation: notice-fade 0.22s ease both;
+}
+
+.notice-sheet-card {
+  position: relative;
+  width: min(100%, 28rem);
+  max-height: min(86vh, 40rem);
+  overflow: auto;
+  padding: 0.7rem 1.35rem 1.6rem;
+  border-radius: 1.55rem 1.55rem 1.25rem 1.25rem;
+  background:
+    radial-gradient(120% 80% at 50% -10%, color-mix(in oklab, var(--accent) 18%, white), transparent 55%),
+    #fff;
+  box-shadow: 0 24px 60px rgb(15 23 42 / 0.22);
+  animation: notice-rise 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+  text-align: left;
+}
+
+.notice-sheet-handle {
+  width: 2.4rem;
+  height: 0.28rem;
+  margin: 0.15rem auto 0.9rem;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 0.12);
+}
+
+.notice-sheet-close {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 0.06);
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.notice-sheet-hero {
+  display: grid;
+  justify-items: start;
+  gap: 0.55rem;
+  margin-bottom: 0.85rem;
+  padding-right: 2rem;
+}
+
+.notice-sheet-emoji {
+  font-size: 2.4rem;
+  line-height: 1;
+}
+
+.notice-sheet-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.notice-sheet-kind {
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: var(--fill);
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.notice-sheet-when {
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+
+.notice-sheet-title {
+  margin: 0;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.55rem, 4vw, 2rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.notice-sheet-body {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.notice-sheet-body p {
+  margin: 0;
+  font-size: 1.02rem;
+  line-height: 1.65;
+  color: hsl(215 18% 28%);
   white-space: pre-wrap;
+}
+
+@keyframes notice-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes notice-rise {
+  from { opacity: 0; transform: translateY(24px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (min-width: 720px) {
+  .notice-sheet {
+    align-items: center;
+  }
+
+  .notice-sheet-card {
+    border-radius: 1.5rem;
+  }
 }
 
 .sr-only {
