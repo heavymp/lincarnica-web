@@ -14,6 +14,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Removed
 
+## [0.7.1] — 2026-08-24
+
+### Fixed
+
+- Obavijesti subscribe/unsubscribe use Supabase RPC instead of Edge Function (fixes CORS on production).
+
+### Changed
+
+- Subscribe saves via `subscribe_obavijesti` RPC; Brevo welcome email still sent when `pretplata` function is deployed.
+- Improved CORS headers on `pretplata` Edge Function.
+
 ## [0.7.0] — 2026-08-24
 
 ### Added

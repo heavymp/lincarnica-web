@@ -1,15 +1,8 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
+import { jsonResponse, preflight } from '../_shared/cors.ts';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
-};
-
-function json(status, body) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-  });
+function json(status: number, body: unknown) {
+  return jsonResponse(status, body);
 }
 
 function siteUrl(req) {
@@ -60,7 +53,7 @@ async function brevoUpsertContact(brevoKey, email, listId) {
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return preflight();
   }
 
   const supabase = createClient(
@@ -84,16 +77,12 @@ Deno.serve(async (req) => {
     const token = String(payload.token || url.searchParams.get('t') || '').trim();
     if (!token) return json(400, { error: 'Missing token' });
 
-    const { data, error } = await supabase
-      .from('obavijesti_pretplatnici')
-      .update({ active: false })
-      .eq('token', token)
-      .eq('active', true)
-      .select('email')
-      .maybeSingle();
+    const { data, error } = await supabase.rpc('unsubscribe_obavijesti', {
+      p_token: token
+    });
 
     if (error) return json(500, { error: 'Unsubscribe failed' });
-    return json(200, { ok: true, unsubscribed: Boolean(data) });
+    return json(200, data ?? { ok: true, unsubscribed: false });
   }
 
   if (req.method !== 'POST') {
@@ -107,37 +96,24 @@ Deno.serve(async (req) => {
     return json(400, { error: 'Invalid email' });
   }
 
-  const { data: existing } = await supabase
+  const { error: saveError } = await supabase.rpc('subscribe_obavijesti', {
+    p_email: email
+  });
+
+  if (saveError) return json(500, { error: 'Save failed' });
+
+  const { data: subscriber } = await supabase
     .from('obavijesti_pretplatnici')
-    .select('id, active, token')
+    .select('token')
     .ilike('email', email)
     .maybeSingle();
-
-  let token = existing?.token;
-  if (existing) {
-    const { data, error } = await supabase
-      .from('obavijesti_pretplatnici')
-      .update({ active: true, email })
-      .eq('id', existing.id)
-      .select('token')
-      .single();
-    if (error) return json(500, { error: 'Save failed' });
-    token = data.token;
-  } else {
-    const { data, error } = await supabase
-      .from('obavijesti_pretplatnici')
-      .insert({ email, active: true })
-      .select('token')
-      .single();
-    if (error) return json(500, { error: 'Save failed' });
-    token = data.token;
-  }
 
   const settings = await loadBrevo(supabase);
   const brevoKey = resolveApiKey(settings);
   const listId = settings.list_id_obavijesti || settings.list_id_kontakt || '';
   await brevoUpsertContact(brevoKey, email, listId);
 
+  const token = subscriber?.token;
   const base = siteUrl(req);
   const unsub = token && base ? `${base}/odjava?t=${token}` : '';
   const sender = (settings.sender_obavijesti || settings.sender_kontakt || '').trim();

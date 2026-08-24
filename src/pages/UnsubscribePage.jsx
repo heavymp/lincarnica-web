@@ -15,8 +15,7 @@ const UnsubscribePage = () => {
     if (!token || !supabase) return undefined;
 
     let ignore = false;
-    supabase.functions
-      .invoke('pretplata', { body: { action: 'unsubscribe', token } })
+    supabase.rpc('unsubscribe_obavijesti', { p_token: token })
       .then(({ error }) => {
         if (ignore) return;
         setStatus(error ? 'error' : 'ok');

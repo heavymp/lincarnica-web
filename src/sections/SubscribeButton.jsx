@@ -24,10 +24,13 @@ const SubscribeButton = () => {
     setStatus('sending');
     setMessage('');
     try {
-      const { error } = await supabase.functions.invoke('pretplata', {
-        body: { action: 'subscribe', email: email.trim(), website: '' }
+      const { error } = await supabase.rpc('subscribe_obavijesti', {
+        p_email: email.trim()
       });
       if (error) throw error;
+      void supabase.functions.invoke('pretplata', {
+        body: { action: 'subscribe', email: email.trim(), website: '' }
+      });
       setStatus('ok');
       setMessage('Hvala! Bit ćete obaviješteni o novim obavijestima.');
       setEmail('');
