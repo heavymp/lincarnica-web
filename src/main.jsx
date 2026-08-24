@@ -6,6 +6,7 @@ import AdminApp from './admin/AdminApp.jsx';
 import { AuthProvider } from './lib/AuthContext.jsx';
 import { SiteContentProvider } from './lib/SiteContent.jsx';
 import UnsubscribePage from './pages/UnsubscribePage.jsx';
+import PrivacyPage from './pages/PrivacyPage.jsx';
 import './styles.css';
 
 const rootEl = document.getElementById('root');
@@ -27,6 +28,14 @@ createRoot(rootEl).render(
             }
           />
           <Route path="/odjava" element={<UnsubscribePage />} />
+          <Route
+            path="/privatnost"
+            element={
+              <SiteContentProvider>
+                <PrivacyPage />
+              </SiteContentProvider>
+            }
+          />
           <Route path="/admin/*" element={<AdminApp />} />
         </Routes>
       </AuthProvider>

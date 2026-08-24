@@ -125,6 +125,6 @@ No VPS required.
 
 ## Version
 
-- Source of truth: `package.json` → `"version"` (currently **0.8.0**).
+- Source of truth: `package.json` → `"version"` (currently **0.8.1**).
 - History: [`CHANGELOG.md`](./CHANGELOG.md).
 - On release: bump version, update changelog, then lint/build.

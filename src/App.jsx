@@ -26,6 +26,10 @@ const App = () => {
         <div className="divider" aria-hidden="true" />
         <p className="fineprint">
           {content.footer_text}
+          {' · '}
+          <a className="version-link" href="/privatnost">
+            Privatnost
+          </a>
           {__CHANGELOG_URL__ ? (
             <>
               {' '}

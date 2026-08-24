@@ -1,5 +1,6 @@
 import { useEffect, useId, useState } from 'react';
 import { createPortal } from 'react-dom';
+import PrivacyNotice from '../components/PrivacyNotice.jsx';
 import { supabase } from '../lib/supabase.js';
 
 const SubscribeButton = () => {
@@ -110,6 +111,7 @@ const SubscribeButton = () => {
                       placeholder="vas@email.com"
                     />
                   </label>
+                  <PrivacyNotice context="subscribe" />
                   <button type="submit" className="kontakt-submit" disabled={status === 'sending'}>
                     {status === 'sending' ? 'Šaljem…' : 'Pretplati se'}
                   </button>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import PrivacyNotice from '../components/PrivacyNotice.jsx';
 import { useSiteContent } from '../lib/SiteContent.jsx';
 import { supabase } from '../lib/supabase.js';
 
@@ -135,6 +136,7 @@ const KontaktPanel = () => {
             maxLength={4000}
           />
         </label>
+        <PrivacyNotice context="kontakt" />
         <button type="submit" className="kontakt-submit" disabled={status === 'sending'}>
           {status === 'sending' ? 'Šaljem…' : kontakt.submit_label}
         </button>

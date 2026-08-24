@@ -14,6 +14,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Removed
 
+## [0.8.1] — 2026-08-24
+
+### Added
+
+- `/privatnost` privacy policy page (GDPR, udruga as controller).
+- Footer link and short notices on pretplata and kontakt forms.
+
 ## [0.8.0] — 2026-08-24
 
 ### Changed
