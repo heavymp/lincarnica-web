@@ -5,12 +5,13 @@ import {
   mapNotice,
   sortNotices
 } from '../lib/obavijesti.js';
+import { kindMeta } from '../lib/noticeKinds.js';
 import { supabase } from '../lib/supabase.js';
 
 async function fetchNotices() {
   const { data, error } = await supabase
     .from('obavijesti')
-    .select('id, title, body, happens_at, important, emoji, created_at')
+    .select('id, title, body, happens_at, important, emoji, kind, created_at')
     .eq('draft', false);
 
   if (error) throw error;
@@ -117,11 +118,10 @@ const ObavijestiPanel = () => {
               ) : null}
               {item.important && !past ? <span className="notice-flag">Važno</span> : null}
               {past ? <span className="notice-flag notice-flag-past">Prošlo</span> : null}
+              <span>{kindMeta(item.kind).label}</span>
               {item.happensAt ? (
                 <time dateTime={item.happensAt}>{formatHappensAt(item.happensAt)}</time>
-              ) : (
-                <span>Obavijest</span>
-              )}
+              ) : null}
             </div>
             <h3 className="notice-title">
               {item.emoji ? <span className="sr-only">{item.emoji} </span> : null}

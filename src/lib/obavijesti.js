@@ -1,3 +1,5 @@
+import { kindMeta } from './noticeKinds.js';
+
 const dateFmt = new Intl.DateTimeFormat('hr-HR', {
   day: 'numeric',
   month: 'long',
@@ -12,6 +14,13 @@ const todayKeyFmt = new Intl.DateTimeFormat('en-CA', {
   day: '2-digit'
 });
 
+const timeFmt = new Intl.DateTimeFormat('en-GB', {
+  timeZone: 'Europe/Zagreb',
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false
+});
+
 function dateKey(value) {
   if (!value) return '';
   return todayKeyFmt.format(new Date(value));
@@ -23,13 +32,17 @@ export function todayKey() {
 
 /** Map a Supabase row to the shape used by the UI. */
 export function mapNotice(row) {
+  const kind = row.kind || 'obavijest';
+  const emoji = (row.emoji || '').trim() || kindMeta(kind).emoji;
   return {
     id: row.id,
     title: row.title,
     body: row.body,
     happensAt: row.happens_at,
     important: Boolean(row.important),
-    emoji: (row.emoji || '').trim(),
+    draft: Boolean(row.draft),
+    emoji,
+    kind,
     created: row.created_at
   };
 }
@@ -42,6 +55,24 @@ export function isPastNotice(record) {
 export function formatHappensAt(value) {
   if (!value) return '';
   return dateFmt.format(new Date(value));
+}
+
+export function splitHappensAt(value) {
+  if (!value) return { date: '', time: '' };
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return { date: '', time: '' };
+  return {
+    date: todayKeyFmt.format(parsed),
+    time: timeFmt.format(parsed)
+  };
+}
+
+export function joinHappensAt(date, time) {
+  if (!date) return null;
+  const clock = time && time.length >= 4 ? time : '12:00';
+  const parsed = new Date(`${date}T${clock}:00`);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return parsed.toISOString();
 }
 
 function sortStamp(record) {

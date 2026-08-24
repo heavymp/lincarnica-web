@@ -14,6 +14,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Removed
 
+## [0.4.0] — 2026-08-24
+
+### Added
+
+- Apple-like **`/admin`** editor (login, Obavijesti, site copy, Kontakt, messages).
+- Notice **kinds** (obavijest, sastanak, događaj, festa), emoji picker, and date/time controls.
+- Authenticated write policies so the editor can talk to Supabase without the Table Editor.
+
 ## [0.3.0] — 2026-08-24
 
 ### Added

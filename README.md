@@ -40,8 +40,17 @@ Uploading `dist/` to Hostinger alone does **not** update the database. Schema up
 
    - `VITE_SUPABASE_URL`
    - `VITE_SUPABASE_ANON_KEY`
-4. Edit content in the Table Editor (see tables below).
-5. Optional Brevo: create an API key + list ID, set `brevo_list_id` / `notify_email` in `kontakt_settings`, then store `BREVO_API_KEY` as a Supabase secret (or as a GitHub secret so CI sets it).
+4. Create an editor login: **Authentication → Users → Add user** (email + password). Keep public signup off.
+5. Open **`/admin`** on the site to edit content. Table Editor still works as a fallback.
+6. Optional Brevo: create an API key + list ID, set `brevo_list_id` / `notify_email` in Kontakt (advanced), then store `BREVO_API_KEY` as a Supabase secret.
+
+## Admin (`/admin`)
+
+1. Run the latest SQL (`schema.sql` or new files in `supabase/migrations/`).
+2. **Authentication → Users → Add user** (email + password).
+3. Visit `https://your-domain/admin` and sign in.
+
+Kinds for obavijesti: Obavijest, Sastanak, Događaj, Festa. Past dated items stay visible but grey on the public site.
 
 ## Editable tables
 
@@ -63,6 +72,7 @@ Seeds are inserted only if missing — migrations **do not overwrite** your edit
 | Column | Meaning |
 |--------|---------|
 | `title` / `body` | Content |
+| `kind` | `obavijest` / `sastanak` / `dogadaj` / `festa` |
 | `emoji` | Optional emoji/icon (e.g. 🎉) |
 | `happens_at` | Event date — past dates stay visible but greyed out |
 | `important` | *Važno* badge (current items) |
@@ -93,7 +103,7 @@ If Hostinger builds from Git, set only:
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_ANON_KEY` (prefer publishable key)
 
-Then push to the connected branch. Do **not** put `SUPABASE_ACCESS_TOKEN`, `SUPABASE_PROJECT_REF`, or `BREVO_API_KEY` on Hostinger.
+Then push to the connected branch. Enable SPA fallback so `/admin` works (Hostinger Node/Vite apps usually do; `.htaccess` is included for Apache). Do **not** put `SUPABASE_ACCESS_TOKEN`, `SUPABASE_PROJECT_REF`, or `BREVO_API_KEY` on Hostinger.
 
 Alternatively: set those two in local `.env`, run `npm run build`, upload **`dist/`**.
 
@@ -103,6 +113,6 @@ No VPS required.
 
 ## Version
 
-- Source of truth: `package.json` → `"version"` (currently **0.3.0**).
+- Source of truth: `package.json` → `"version"` (currently **0.4.0**).
 - History: [`CHANGELOG.md`](./CHANGELOG.md).
 - On release: bump version, update changelog, then lint/build.
