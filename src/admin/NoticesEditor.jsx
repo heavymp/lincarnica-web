@@ -101,15 +101,30 @@ const NoticesEditor = () => {
       ? supabase.from('obavijesti').update(payload).eq('id', form.id)
       : supabase.from('obavijesti').insert(payload).select('id').single();
     const { data, error } = await query;
-    setSaving(false);
     if (error) {
+      setSaving(false);
       setFlash('Spremanje nije uspjelo. Pokušajte ponovno.');
       return;
     }
     if (!form.id && data?.id) {
       setForm((current) => ({ ...current, id: data.id }));
     }
-    setFlash('Spremljeno.');
+    const wasDraft = form.id ? Boolean(selected?.draft) : true;
+    const publishing = !form.draft;
+    const noticeId = form.id || data?.id;
+
+    let flashText = 'Spremljeno.';
+    if (publishing && wasDraft && noticeId) {
+      const { error: notifyError } = await supabase.functions.invoke('obavijesti-notify', {
+        body: { id: noticeId }
+      });
+      flashText = notifyError
+        ? 'Spremljeno. Obavijest pretplatnicima nije poslana (provjerite Brevo / funkciju).'
+        : 'Spremljeno i poslana obavijest pretplatnicima.';
+    }
+    setFlash(flashText);
+    setSaving(false);
+
     const { data: rows } = await supabase
       .from('obavijesti')
       .select('id, title, body, happens_at, important, emoji, kind, draft, created_at')

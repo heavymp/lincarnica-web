@@ -5,6 +5,7 @@ import App from './App.jsx';
 import AdminApp from './admin/AdminApp.jsx';
 import { AuthProvider } from './lib/AuthContext.jsx';
 import { SiteContentProvider } from './lib/SiteContent.jsx';
+import UnsubscribePage from './pages/UnsubscribePage.jsx';
 import './styles.css';
 
 const rootEl = document.getElementById('root');
@@ -25,6 +26,7 @@ createRoot(rootEl).render(
               </SiteContentProvider>
             }
           />
+          <Route path="/odjava" element={<UnsubscribePage />} />
           <Route path="/admin/*" element={<AdminApp />} />
         </Routes>
       </AuthProvider>

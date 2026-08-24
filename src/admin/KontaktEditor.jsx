@@ -42,6 +42,7 @@ const KontaktEditor = () => {
         success_message: form.success_message,
         error_message: form.error_message,
         brevo_list_id: form.brevo_list_id,
+        brevo_obavijesti_list_id: form.brevo_obavijesti_list_id,
         notify_email: form.notify_email
       })
       .eq('id', 1);
@@ -137,20 +138,31 @@ const KontaktEditor = () => {
       <details className="admin-advanced">
         <summary>Napredno (Brevo)</summary>
         <label>
-          Brevo list ID
+          Brevo list ID (kontakt)
           <input
             value={form.brevo_list_id}
             onChange={(event) => setField('brevo_list_id', event.target.value)}
           />
         </label>
         <label>
-          E-mail obavijesti
+          Brevo list ID (obavijesti pretplate)
+          <input
+            value={form.brevo_obavijesti_list_id}
+            onChange={(event) => setField('brevo_obavijesti_list_id', event.target.value)}
+          />
+        </label>
+        <label>
+          E-mail pošiljatelja / obavijesti
           <input
             type="email"
             value={form.notify_email}
             onChange={(event) => setField('notify_email', event.target.value)}
           />
         </label>
+        <p className="admin-hint">
+          `notify_email` šalje kontakt poruke i mailove pretplatnicima. Na Supabase secretima trebaju
+          `BREVO_API_KEY` i `SITE_URL` (za poveznice odjave).
+        </p>
       </details>
 
       <div className="admin-actions">

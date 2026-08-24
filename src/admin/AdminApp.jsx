@@ -7,6 +7,7 @@ import KontaktEditor from './KontaktEditor.jsx';
 import MessagesInbox from './MessagesInbox.jsx';
 import NoticesEditor from './NoticesEditor.jsx';
 import SiteEditor from './SiteEditor.jsx';
+import SubscribersAdmin from './SubscribersAdmin.jsx';
 import './admin.css';
 
 const AdminApp = () => {
@@ -43,6 +44,7 @@ const AdminApp = () => {
         <Route path="stranica" element={<SiteEditor />} />
         <Route path="kontakt" element={<KontaktEditor />} />
         <Route path="poruke" element={<MessagesInbox />} />
+        <Route path="pretplate" element={<SubscribersAdmin />} />
       </Route>
     </Routes>
   );

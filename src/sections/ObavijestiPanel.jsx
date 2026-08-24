@@ -8,6 +8,7 @@ import {
 import { kindMeta } from '../lib/noticeKinds.js';
 import { supabase } from '../lib/supabase.js';
 import NoticeDetail from './NoticeDetail.jsx';
+import SubscribeButton from './SubscribeButton.jsx';
 
 const PREVIEW_LEN = 110;
 
@@ -82,87 +83,85 @@ const ObavijestiPanel = () => {
     return () => window.cancelAnimationFrame(frame);
   }, [status, items]);
 
-  if (status === 'loading') {
-    return (
-      <p className="panel-status" role="status">
-        Učitavanje…
-      </p>
-    );
-  }
-
-  if (status === 'offline' || status === 'error') {
-    return (
-      <p className="panel-status">
-        Obavijesti trenutačno nisu dostupne. Pokušajte kasnije.
-      </p>
-    );
-  }
-
-  if (items.length === 0) {
-    return (
-      <p className="panel-status">Trenutačno nema novih obavijesti.</p>
-    );
-  }
-
-  const currentId = items.find((item) => !isPastNotice(item))?.id;
   const openNotice = items.find((item) => item.id === openId) ?? null;
+  const currentId = items.find((item) => !isPastNotice(item))?.id;
 
   return (
-    <>
-      <ul className="notice-list" ref={listRef}>
-        {items.map((item) => {
-          const past = isPastNotice(item);
-          const classNames = ['notice', 'notice-clickable'];
-          if (item.important && !past) classNames.push('notice-important');
-          if (past) classNames.push('notice-past');
-          const preview = previewBody(item.body);
-          const longer = preview !== String(item.body || '').replace(/\s+/gu, ' ').trim();
+    <div className="obavijesti-panel">
+      <div className="obavijesti-toolbar">
+        <SubscribeButton />
+      </div>
 
-          return (
-            <li
-              key={item.id}
-              className={classNames.join(' ')}
-              ref={item.id === currentId ? currentRef : undefined}
-            >
-              <button
-                type="button"
-                className="notice-open"
-                onClick={() => setOpenId(item.id)}
-                aria-haspopup="dialog"
+      {status === 'loading' ? (
+        <p className="panel-status" role="status">
+          Učitavanje…
+        </p>
+      ) : null}
+
+      {status === 'offline' || status === 'error' ? (
+        <p className="panel-status">
+          Obavijesti trenutačno nisu dostupne. Pokušajte kasnije.
+        </p>
+      ) : null}
+
+      {status === 'ready' && items.length === 0 ? (
+        <p className="panel-status">Trenutačno nema novih obavijesti.</p>
+      ) : null}
+
+      {status === 'ready' && items.length > 0 ? (
+        <ul className="notice-list" ref={listRef}>
+          {items.map((item) => {
+            const past = isPastNotice(item);
+            const classNames = ['notice', 'notice-clickable'];
+            if (item.important && !past) classNames.push('notice-important');
+            if (past) classNames.push('notice-past');
+
+            return (
+              <li
+                key={item.id}
+                className={classNames.join(' ')}
+                ref={item.id === currentId ? currentRef : undefined}
               >
-                <div className="notice-meta">
-                  {item.emoji ? (
-                    <span className="notice-emoji" aria-hidden="true">
-                      {item.emoji}
-                    </span>
-                  ) : null}
-                  {item.important && !past ? (
-                    <span className="notice-flag">Važno</span>
-                  ) : null}
-                  {past ? (
-                    <span className="notice-flag notice-flag-past">Prošlo</span>
-                  ) : null}
-                  <span>{kindMeta(item.kind).label}</span>
-                  {item.happensAt ? (
-                    <time dateTime={item.happensAt}>{formatHappensAt(item.happensAt)}</time>
-                  ) : null}
-                </div>
-                <h3 className="notice-title">
-                  {item.emoji ? <span className="sr-only">{item.emoji} </span> : null}
-                  {item.title}
-                </h3>
-                <p className="notice-body">{preview}</p>
-                <span className="notice-more">{longer ? 'Pročitaj više' : 'Otvori'}</span>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
+                <button
+                  type="button"
+                  className="notice-open"
+                  onClick={() => setOpenId(item.id)}
+                  aria-haspopup="dialog"
+                  aria-label={`Otvori obavijest: ${item.title}`}
+                >
+                  <div className="notice-meta">
+                    {item.emoji ? (
+                      <span className="notice-emoji" aria-hidden="true">
+                        {item.emoji}
+                      </span>
+                    ) : null}
+                    {item.important && !past ? (
+                      <span className="notice-flag">Važno</span>
+                    ) : null}
+                    {past ? (
+                      <span className="notice-flag notice-flag-past">Prošlo</span>
+                    ) : null}
+                    <span>{kindMeta(item.kind).label}</span>
+                    {item.happensAt ? (
+                      <time dateTime={item.happensAt}>{formatHappensAt(item.happensAt)}</time>
+                    ) : null}
+                  </div>
+                  <h3 className="notice-title">
+                    {item.emoji ? <span className="sr-only">{item.emoji} </span> : null}
+                    {item.title}
+                  </h3>
+                  <p className="notice-body">{previewBody(item.body)}</p>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      ) : null}
 
       {openNotice ? (
         <NoticeDetail notice={openNotice} onClose={() => setOpenId(null)} />
       ) : null}
-    </>
+    </div>
   );
 };
 

@@ -2,3 +2,9 @@ project_id = "lincarnica-web"
 
 [functions.kontakt]
 verify_jwt = false
+
+[functions.pretplata]
+verify_jwt = false
+
+[functions.obavijesti-notify]
+verify_jwt = true

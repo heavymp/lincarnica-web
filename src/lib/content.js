@@ -25,6 +25,7 @@ export const DEFAULT_KONTAKT = {
   success_message: 'Hvala! Poruka je poslana.',
   error_message: 'Slanje nije uspjelo. Pokušajte ponovno.',
   brevo_list_id: '',
+  brevo_obavijesti_list_id: '',
   notify_email: ''
 };
 
@@ -55,6 +56,7 @@ export function mapKontakt(row) {
     success_message: row.success_message || DEFAULT_KONTAKT.success_message,
     error_message: row.error_message || DEFAULT_KONTAKT.error_message,
     brevo_list_id: row.brevo_list_id || '',
+    brevo_obavijesti_list_id: row.brevo_obavijesti_list_id || '',
     notify_email: row.notify_email || ''
   };
 }

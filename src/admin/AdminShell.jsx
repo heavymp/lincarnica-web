@@ -5,7 +5,8 @@ const tabs = [
   { to: '/admin/obavijesti', label: 'Obavijesti' },
   { to: '/admin/stranica', label: 'Stranica' },
   { to: '/admin/kontakt', label: 'Kontakt' },
-  { to: '/admin/poruke', label: 'Poruke' }
+  { to: '/admin/poruke', label: 'Poruke' },
+  { to: '/admin/pretplate', label: 'Pretplate' }
 ];
 
 const AdminShell = () => {

@@ -14,6 +14,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Removed
 
+## [0.6.0] — 2026-08-24
+
+### Added
+
+- **Pretplata na obavijesti**: bell icon on the public list, Brevo email on publish, admin subscriber list, and `/odjava` unsubscribe links in emails.
+
+### Changed
+
+- Notice cards no longer show “Otvori / Pročitaj više” text (still fully clickable).
+
 ## [0.5.0] — 2026-08-24
 
 ### Added

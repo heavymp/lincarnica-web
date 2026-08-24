@@ -49,8 +49,11 @@ Uploading `dist/` to Hostinger alone does **not** update the database. Schema up
 1. Run the latest SQL (`schema.sql` or new files in `supabase/migrations/`).
 2. **Authentication → Users → Add user** (email + password).
 3. Visit `https://your-domain/admin` and sign in.
+4. For email (kontakt + obavijesti pretplate): deploy Edge Functions, set Supabase secrets `BREVO_API_KEY` and `SITE_URL`, and fill Brevo fields under Kontakt → Napredno.
 
 Kinds for obavijesti: Obavijest, Sastanak, Događaj, Fešta. Past dated items stay visible but grey on the public site.
+
+Public visitors can subscribe with the bell icon on Obavijesti. Publishing a notice from admin emails active subscribers (with unsubscribe link).
 
 ## Editable tables
 
@@ -78,9 +81,13 @@ Seeds are inserted only if missing — migrations **do not overwrite** your edit
 | `important` | *Važno* badge (current items) |
 | `draft` | `false` = published |
 
+### `obavijesti_pretplatnici`
+
+Email subscriptions (`active`, unsubscribe `token`). Managed in `/admin/pretplate`.
+
 ### `kontakt_settings` (single row `id = 1`)
 
-Headings, labels, email/phone/address, success/error text, `brevo_list_id`, `notify_email`.
+Headings, labels, email/phone/address, success/error text, `brevo_list_id`, `brevo_obavijesti_list_id`, `notify_email`.
 
 ### `kontakt_poruke`
 
@@ -95,6 +102,7 @@ Incoming form messages (insert from the public site).
 | `SUPABASE_ACCESS_TOKEN` | [Account → Access Tokens](https://supabase.com/dashboard/account/tokens) |
 | `SUPABASE_PROJECT_REF` | Project Settings → General → Reference ID |
 | `BREVO_API_KEY` | Optional; CI stores it as a Supabase function secret |
+| `SITE_URL` | Public site URL for unsubscribe links (e.g. `https://lincarnica.hr`) |
 
 ## Deploy (Hostinger)
 
@@ -113,6 +121,6 @@ No VPS required.
 
 ## Version
 
-- Source of truth: `package.json` → `"version"` (currently **0.5.0**).
+- Source of truth: `package.json` → `"version"` (currently **0.6.0**).
 - History: [`CHANGELOG.md`](./CHANGELOG.md).
 - On release: bump version, update changelog, then lint/build.
