@@ -14,6 +14,42 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Removed
 
+## [0.3.0] — 2026-08-24
+
+### Added
+
+- **Kontakt** pill with contact form; settings and messages live in Supabase; optional **Brevo** via Edge Function.
+- CMS tables: `site_content` (hero/footer/labels/meta), `kontakt_settings`, `kontakt_poruke`.
+- Obavijesti `emoji` field; scrollable list with past items greyed and scrolled above the current event.
+- CI job to `db push` + deploy `kontakt` function when Supabase secrets are set.
+
+### Changed
+
+- Obavijesti opens by default.
+- All main page copy is loaded from Supabase (with local fallbacks).
+
+## [0.2.0] — 2026-08-24
+
+### Changed
+
+- Obavijesti now use **Supabase** (free hosted) instead of self-hosted PocketBase, so the site stays deployable on static hosts like Hostinger.
+
+### Removed
+
+- PocketBase scripts, Docker Compose, and local `pb_migrations`.
+
+## [0.1.0] — 2026-08-24
+
+### Added
+
+- **Obavijesti** panel on the landing page, opened from a pill (no traditional menu).
+- Section registry (`src/sections/registry.js`) so a later panel like Kontakt can share the same dock.
+
+### Changed
+
+- Coming-soon heading replaced with a short welcome; footer now says the site keeps evolving.
+- Meta description updated to match the live landing.
+
 ## [0.0.3] — 2026-05-06
 
 ### Added

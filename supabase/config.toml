@@ -1,0 +1,4 @@
+project_id = "lincarnica-web"
+
+[functions.kontakt]
+verify_jwt = false

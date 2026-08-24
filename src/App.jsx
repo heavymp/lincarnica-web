@@ -1,4 +1,9 @@
+import { useSiteContent } from './lib/SiteContent.jsx';
+import SectionDock from './sections/SectionDock.jsx';
+
 const App = () => {
+  const { content } = useSiteContent();
+
   return (
     <main className="page">
       <section className="hero" aria-labelledby="main-title">
@@ -7,21 +12,20 @@ const App = () => {
           width="230"
           height="230"
           className="logo"
-          alt="Linčarnica logo"
+          alt={content.logo_alt}
           loading="eager"
           decoding="async"
           fetchPriority="high"
         />
 
-        <h1 id="main-title">Uskoro stižemo</h1>
+        <h1 id="main-title">{content.hero_title}</h1>
+        <p className="subtitle">{content.hero_subtitle}</p>
 
-        <p className="subtitle">
-          Web stranica Udruge mještana Ugljan - Sušica “Linčarnica” uskoro će biti dostupna
-        </p>
+        <SectionDock />
 
         <div className="divider" aria-hidden="true" />
         <p className="fineprint">
-          Hvala na strpljenju
+          {content.footer_text}
           {__CHANGELOG_URL__ ? (
             <>
               {' '}
