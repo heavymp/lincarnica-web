@@ -1,44 +1,14 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
+import { brevoApiKey, loadBrevo } from '../_shared/brevo.ts';
+import { jsonResponse, preflight } from '../_shared/cors.ts';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
-};
-
-function json(status, body) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-  });
-}
-
-async function loadBrevo(supabase) {
-  const { data } = await supabase.from('brevo_settings').select('*').eq('id', 1).maybeSingle();
-  if (data) return data;
-
-  const { data: legacy } = await supabase
-    .from('kontakt_settings')
-    .select('brevo_list_id, brevo_obavijesti_list_id, notify_email')
-    .eq('id', 1)
-    .maybeSingle();
-
-  return {
-    api_key: '',
-    sender_kontakt: legacy?.notify_email || '',
-    sender_obavijesti: legacy?.notify_email || '',
-    recipient_kontakt: legacy?.notify_email || '',
-    list_id_kontakt: legacy?.brevo_list_id || '',
-    list_id_obavijesti: legacy?.brevo_obavijesti_list_id || ''
-  };
-}
-
-function resolveApiKey(settings) {
-  return (settings?.api_key || Deno.env.get('BREVO_API_KEY') || '').trim();
+function json(status: number, body: unknown) {
+  return jsonResponse(status, body);
 }
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return preflight();
   }
 
   if (req.method !== 'POST') {
@@ -81,7 +51,7 @@ Deno.serve(async (req) => {
   }
 
   const settings = await loadBrevo(supabase);
-  const brevoKey = resolveApiKey(settings);
+  const brevoKey = brevoApiKey(settings);
 
   if (brevoKey) {
     const listId = Number(settings.list_id_kontakt);

@@ -191,7 +191,6 @@ const KontaktEditor = () => {
             <span className="admin-brevo-label">API key</span>
             <span className="admin-brevo-desc">
               Brevo → SMTP &amp; API → API keys. Čuva se samo za prijavljene urednike (nije javno).
-              Ako je prazno, koristi se Supabase Secret <code>BREVO_API_KEY</code>.
             </span>
             <div className="admin-brevo-key-row">
               <input
@@ -298,8 +297,8 @@ const KontaktEditor = () => {
         </div>
 
         <p className="admin-brevo-note">
-          Pretplata automatski dodaje kontakt u Brevo i šalje mail dobrodošlice (server-side).
-          Edge Functions i dalje koriste Supabase Secret <code>SITE_URL</code> ako je postavljen.
+          Sve Brevo postavke su ovdje — nema dodatnih env varijabli ni GitHub secreta. Spremite
+          prije testiranja pretplate.
         </p>
       </section>
 

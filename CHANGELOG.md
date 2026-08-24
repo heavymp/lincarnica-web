@@ -14,6 +14,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Removed
 
+## [0.8.0] — 2026-08-24
+
+### Changed
+
+- Subscribe: one call to `pretplata` Edge Function (save + Brevo + welcome mail).
+- All Brevo config in `/admin/kontakt` only — removed GitHub `BREVO_API_KEY` / `SITE_URL` from CI.
+- Shared Brevo helpers for Edge Functions; removed pg_net subscribe path.
+
 ## [0.7.3] — 2026-08-24
 
 ### Fixed

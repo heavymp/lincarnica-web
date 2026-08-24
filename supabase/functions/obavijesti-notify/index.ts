@@ -1,56 +1,20 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
+import { brevoApiKey, brevoObavijestiSender, brevoSendEmail, loadBrevo, publicSiteUrl } from '../_shared/brevo.ts';
+import { jsonResponse, preflight } from '../_shared/cors.ts';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
-};
-
-function json(status, body) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-  });
+function json(status: number, body: unknown) {
+  return jsonResponse(status, body);
 }
 
-function siteUrl(req) {
-  const fromEnv = (Deno.env.get('SITE_URL') || '').replace(/\/$/u, '');
-  if (fromEnv) return fromEnv;
-  return (req.headers.get('origin') || '').replace(/\/$/u, '');
-}
-
-function preview(text) {
+function preview(text: string) {
   const clean = String(text || '').replace(/\s+/gu, ' ').trim();
   if (clean.length <= 220) return clean;
   return `${clean.slice(0, 220).trimEnd()}…`;
 }
 
-async function loadBrevo(supabase) {
-  const { data } = await supabase.from('brevo_settings').select('*').eq('id', 1).maybeSingle();
-  if (data) return data;
-
-  const { data: legacy } = await supabase
-    .from('kontakt_settings')
-    .select('notify_email')
-    .eq('id', 1)
-    .maybeSingle();
-
-  return {
-    api_key: '',
-    sender_kontakt: legacy?.notify_email || '',
-    sender_obavijesti: legacy?.notify_email || '',
-    recipient_kontakt: legacy?.notify_email || '',
-    list_id_kontakt: '',
-    list_id_obavijesti: ''
-  };
-}
-
-function resolveApiKey(settings) {
-  return (settings?.api_key || Deno.env.get('BREVO_API_KEY') || '').trim();
-}
-
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return preflight();
   }
   if (req.method !== 'POST') {
     return json(405, { error: 'Method not allowed' });
@@ -99,41 +63,33 @@ Deno.serve(async (req) => {
   if (!subscribers?.length) return json(200, { ok: true, sent: 0 });
 
   const settings = await loadBrevo(supabase);
-  const brevoKey = resolveApiKey(settings);
-  const from = (settings.sender_obavijesti || settings.sender_kontakt || '').trim();
-  if (!brevoKey || !from) {
+  const apiKey = brevoApiKey(settings);
+  const from = brevoObavijestiSender(settings);
+  if (!apiKey || !from) {
     return json(200, { ok: true, sent: 0, skipped: 'brevo_not_configured' });
   }
 
-  const base = siteUrl(req);
-  const pageLink = base || '';
+  const base = publicSiteUrl(settings, req.headers.get('origin'));
   let sent = 0;
 
   for (const sub of subscribers) {
     const unsub = base && sub.token ? `${base}/odjava?t=${sub.token}` : '';
-    const res = await fetch('https://api.brevo.com/v3/smtp/email', {
-      method: 'POST',
-      headers: {
-        accept: 'application/json',
-        'content-type': 'application/json',
-        'api-key': brevoKey
-      },
-      body: JSON.stringify({
-        sender: { email: from, name: 'Linčarnica' },
-        to: [{ email: sub.email }],
-        subject: `${notice.emoji || '📢'} ${notice.title}`,
-        textContent: [
-          'Nova obavijest — Linčarnica',
-          '',
-          notice.title,
-          '',
-          preview(notice.body),
-          pageLink ? `\nPogledajte: ${pageLink}` : '',
-          unsub ? `\nOdjava s obavijesti: ${unsub}` : ''
-        ].join('\n')
-      })
-    });
-    if (res.ok) sent += 1;
+    const ok = await brevoSendEmail(
+      apiKey,
+      from,
+      sub.email,
+      `${notice.emoji || '📢'} ${notice.title}`,
+      [
+        'Nova obavijest — Linčarnica',
+        '',
+        notice.title,
+        '',
+        preview(notice.body),
+        base ? `\nPogledajte: ${base}` : '',
+        unsub ? `\nOdjava s obavijesti: ${unsub}` : ''
+      ].join('\n')
+    );
+    if (ok) sent += 1;
   }
 
   return json(200, { ok: true, sent });

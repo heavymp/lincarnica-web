@@ -24,8 +24,8 @@ const SubscribeButton = () => {
     setStatus('sending');
     setMessage('');
     try {
-      const { error } = await supabase.rpc('subscribe_obavijesti', {
-        p_email: email.trim()
+      const { error } = await supabase.functions.invoke('pretplata', {
+        body: { action: 'subscribe', email: email.trim(), website: '' }
       });
       if (error) throw error;
       setStatus('ok');

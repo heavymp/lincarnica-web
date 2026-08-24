@@ -42,14 +42,14 @@ Uploading `dist/` to Hostinger alone does **not** update the database. Schema up
    - `VITE_SUPABASE_ANON_KEY`
 4. Create an editor login: **Authentication → Users → Add user** (email + password). Keep public signup off.
 5. Open **`/admin`** on the site to edit content. Table Editor still works as a fallback.
-6. Optional Brevo: in `/admin/kontakt` set API key, Sender — Kontakt, Sender — Obavijesti, List IDs, and recipient. Also set Supabase Secret `SITE_URL` for unsubscribe links.
+6. Brevo (optional): in `/admin/kontakt` set API key, senders, list IDs, and **Javni URL stranice** (`https://lincarnica.hr`).
 
 ## Admin (`/admin`)
 
 1. Run the latest SQL (`schema.sql` or new files in `supabase/migrations/`).
 2. **Authentication → Users → Add user** (email + password).
 3. Visit `https://your-domain/admin` and sign in.
-4. For email (kontakt + obavijesti pretplate): deploy Edge Functions, set Supabase Secret `SITE_URL`, and fill Brevo in `/admin/kontakt` (API key, Senders, List IDs). Optional fallback: Supabase Secret `BREVO_API_KEY`.
+4. For email: deploy Edge Functions (GitHub Actions or CLI), then fill **Brevo** in `/admin/kontakt`. No extra env vars needed.
 
 Kinds for obavijesti: Obavijest, Sastanak, Događaj, Fešta. Past dated items stay visible but grey on the public site.
 
@@ -87,7 +87,7 @@ Email subscriptions (`active`, unsubscribe `token`). Managed in `/admin/pretplat
 
 ### `brevo_settings` (single row `id = 1`, admin-only)
 
-`api_key`, `sender_kontakt`, `sender_obavijesti`, `recipient_kontakt`, `list_id_kontakt`, `list_id_obavijesti`.
+`api_key`, `sender_kontakt`, `sender_obavijesti`, `recipient_kontakt`, `list_id_kontakt`, `list_id_obavijesti`, `site_url`.
 
 ### `kontakt_settings` (single row `id = 1`)
 
@@ -105,8 +105,8 @@ Incoming form messages (insert from the public site).
 | `VITE_SUPABASE_ANON_KEY` | Build-time frontend |
 | `SUPABASE_ACCESS_TOKEN` | [Account → Access Tokens](https://supabase.com/dashboard/account/tokens) |
 | `SUPABASE_PROJECT_REF` | Project Settings → General → Reference ID |
-| `BREVO_API_KEY` | Optional; CI stores it as a Supabase function secret |
-| `SITE_URL` | Public site URL for unsubscribe links (e.g. `https://lincarnica.hr`) |
+
+Brevo is configured only in `/admin/kontakt` — not in GitHub secrets.
 
 ## Deploy (Hostinger)
 
@@ -115,7 +115,7 @@ If Hostinger builds from Git, set only:
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_ANON_KEY` (prefer publishable key)
 
-Then push to the connected branch. Enable SPA fallback so `/admin` works (Hostinger Node/Vite apps usually do; `.htaccess` is included for Apache). Do **not** put `SUPABASE_ACCESS_TOKEN`, `SUPABASE_PROJECT_REF`, or `BREVO_API_KEY` on Hostinger.
+Then push to the connected branch. Enable SPA fallback so `/admin` works (Hostinger Node/Vite apps usually do; `.htaccess` is included for Apache). Do **not** put `SUPABASE_ACCESS_TOKEN` or `SUPABASE_PROJECT_REF` on Hostinger.
 
 Alternatively: set those two in local `.env`, run `npm run build`, upload **`dist/`**.
 
@@ -125,6 +125,6 @@ No VPS required.
 
 ## Version
 
-- Source of truth: `package.json` → `"version"` (currently **0.7.3**).
+- Source of truth: `package.json` → `"version"` (currently **0.8.0**).
 - History: [`CHANGELOG.md`](./CHANGELOG.md).
 - On release: bump version, update changelog, then lint/build.

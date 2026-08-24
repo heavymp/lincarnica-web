@@ -1,56 +1,40 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
+import {
+  brevoAddContact,
+  brevoApiKey,
+  brevoObavijestiSender,
+  brevoSendEmail,
+  loadBrevo,
+  obavijestiListId,
+  publicSiteUrl
+} from '../_shared/brevo.ts';
 import { jsonResponse, preflight } from '../_shared/cors.ts';
 
 function json(status: number, body: unknown) {
   return jsonResponse(status, body);
 }
 
-function siteUrl(req, settings) {
-  const fromSettings = (settings?.site_url || '').replace(/\/$/u, '');
-  if (fromSettings) return fromSettings;
-  const fromEnv = (Deno.env.get('SITE_URL') || '').replace(/\/$/u, '');
-  if (fromEnv) return fromEnv;
-  return (req.headers.get('origin') || '').replace(/\/$/u, '');
-}
-
-async function loadBrevo(supabase) {
-  const { data } = await supabase.from('brevo_settings').select('*').eq('id', 1).maybeSingle();
-  if (data) return data;
-
-  const { data: legacy } = await supabase
-    .from('kontakt_settings')
-    .select('brevo_list_id, brevo_obavijesti_list_id, notify_email')
-    .eq('id', 1)
+async function saveSubscriber(supabase, email: string) {
+  const { data: existing } = await supabase
+    .from('obavijesti_pretplatnici')
+    .select('id, token')
+    .ilike('email', email)
     .maybeSingle();
 
-  return {
-    api_key: '',
-    sender_kontakt: legacy?.notify_email || '',
-    sender_obavijesti: legacy?.notify_email || '',
-    recipient_kontakt: legacy?.notify_email || '',
-    list_id_kontakt: legacy?.brevo_list_id || '',
-    list_id_obavijesti: legacy?.brevo_obavijesti_list_id || ''
-  };
-}
+  if (existing) {
+    return supabase
+      .from('obavijesti_pretplatnici')
+      .update({ active: true, email })
+      .eq('id', existing.id)
+      .select('token')
+      .single();
+  }
 
-function resolveApiKey(settings) {
-  return (settings?.api_key || Deno.env.get('BREVO_API_KEY') || '').trim();
-}
-
-async function brevoUpsertContact(brevoKey, email, listId) {
-  if (!brevoKey) return;
-  const body = { email, updateEnabled: true };
-  const id = Number(listId);
-  if (Number.isFinite(id) && id > 0) body.listIds = [id];
-  await fetch('https://api.brevo.com/v3/contacts', {
-    method: 'POST',
-    headers: {
-      accept: 'application/json',
-      'content-type': 'application/json',
-      'api-key': brevoKey
-    },
-    body: JSON.stringify(body)
-  });
+  return supabase
+    .from('obavijesti_pretplatnici')
+    .insert({ email, active: true })
+    .select('token')
+    .single();
 }
 
 Deno.serve(async (req) => {
@@ -63,7 +47,7 @@ Deno.serve(async (req) => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
   );
 
-  let payload = {};
+  let payload: Record<string, unknown> = {};
   if (req.method !== 'GET') {
     try {
       payload = await req.json();
@@ -93,54 +77,43 @@ Deno.serve(async (req) => {
 
   if (payload.website) return json(200, { ok: true });
 
-  const email = String(payload.email || '').trim().toLowerCase();
+  const email = String(payload.email || '')
+    .trim()
+    .toLowerCase();
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/u.test(email)) {
     return json(400, { error: 'Invalid email' });
   }
 
-  const { error: saveError } = await supabase.rpc('subscribe_obavijesti', {
-    p_email: email
-  });
-
-  if (saveError) return json(500, { error: 'Save failed' });
-
-  const { data: subscriber } = await supabase
-    .from('obavijesti_pretplatnici')
-    .select('token')
-    .ilike('email', email)
-    .maybeSingle();
+  const { data: saved, error: saveError } = await saveSubscriber(supabase, email);
+  if (saveError) {
+    console.error('Save subscriber failed', saveError);
+    return json(500, { error: 'Save failed' });
+  }
 
   const settings = await loadBrevo(supabase);
-  const brevoKey = resolveApiKey(settings);
-  const listId = settings.list_id_obavijesti || settings.list_id_kontakt || '';
-  await brevoUpsertContact(brevoKey, email, listId);
-
-  const token = subscriber?.token;
-  const base = siteUrl(req, settings);
+  const apiKey = brevoApiKey(settings);
+  const sender = brevoObavijestiSender(settings);
+  const base = publicSiteUrl(settings, req.headers.get('origin'));
+  const token = saved?.token;
   const unsub = token && base ? `${base}/odjava?t=${token}` : '';
-  const sender = (settings.sender_obavijesti || settings.sender_kontakt || '').trim();
 
-  if (brevoKey && sender) {
-    await fetch('https://api.brevo.com/v3/smtp/email', {
-      method: 'POST',
-      headers: {
-        accept: 'application/json',
-        'content-type': 'application/json',
-        'api-key': brevoKey
-      },
-      body: JSON.stringify({
-        sender: { email: sender, name: 'Linčarnica' },
-        to: [{ email }],
-        subject: 'Pretplata na obavijesti — Linčarnica',
-        textContent: [
+  if (apiKey) {
+    await brevoAddContact(apiKey, email, obavijestiListId(settings));
+    if (sender) {
+      await brevoSendEmail(
+        apiKey,
+        sender,
+        email,
+        'Pretplata na obavijesti — Linčarnica',
+        [
           'Hvala! Prijavljeni ste na obavijesti Udruge mještana Ugljan – Sušica „Linčarnica”.',
           '',
           unsub ? `Odjava: ${unsub}` : ''
         ]
           .filter(Boolean)
           .join('\n')
-      })
-    });
+      );
+    }
   }
 
   return json(200, { ok: true });
