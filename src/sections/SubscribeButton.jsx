@@ -28,9 +28,6 @@ const SubscribeButton = () => {
         p_email: email.trim()
       });
       if (error) throw error;
-      void supabase.functions.invoke('pretplata', {
-        body: { action: 'subscribe', email: email.trim(), website: '' }
-      });
       setStatus('ok');
       setMessage('Hvala! Bit ćete obaviješteni o novim obavijestima.');
       setEmail('');

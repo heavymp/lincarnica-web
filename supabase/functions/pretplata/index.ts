@@ -5,7 +5,9 @@ function json(status: number, body: unknown) {
   return jsonResponse(status, body);
 }
 
-function siteUrl(req) {
+function siteUrl(req, settings) {
+  const fromSettings = (settings?.site_url || '').replace(/\/$/u, '');
+  if (fromSettings) return fromSettings;
   const fromEnv = (Deno.env.get('SITE_URL') || '').replace(/\/$/u, '');
   if (fromEnv) return fromEnv;
   return (req.headers.get('origin') || '').replace(/\/$/u, '');
@@ -114,7 +116,7 @@ Deno.serve(async (req) => {
   await brevoUpsertContact(brevoKey, email, listId);
 
   const token = subscriber?.token;
-  const base = siteUrl(req);
+  const base = siteUrl(req, settings);
   const unsub = token && base ? `${base}/odjava?t=${token}` : '';
   const sender = (settings.sender_obavijesti || settings.sender_kontakt || '').trim();
 

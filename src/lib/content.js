@@ -32,7 +32,8 @@ export const DEFAULT_BREVO = {
   sender_obavijesti: '',
   recipient_kontakt: '',
   list_id_kontakt: '',
-  list_id_obavijesti: ''
+  list_id_obavijesti: '',
+  site_url: ''
 };
 
 /** Public-safe columns only (never includes Brevo secrets). */
@@ -76,6 +77,7 @@ export function mapBrevo(row) {
     sender_obavijesti: row.sender_obavijesti || '',
     recipient_kontakt: row.recipient_kontakt || '',
     list_id_kontakt: row.list_id_kontakt || '',
-    list_id_obavijesti: row.list_id_obavijesti || ''
+    list_id_obavijesti: row.list_id_obavijesti || '',
+    site_url: row.site_url || ''
   };
 }

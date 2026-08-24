@@ -14,6 +14,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Removed
 
+## [0.7.3] — 2026-08-24
+
+### Fixed
+
+- Brevo list sync and welcome email on subscribe now run server-side (pg_net) when RPC saves a subscriber.
+- Admin Brevo settings: **Javni URL stranice** for unsubscribe links in welcome mail.
+
 ## [0.7.2] — 2026-08-24
 
 ### Fixed

@@ -65,7 +65,8 @@ const KontaktEditor = () => {
       sender_obavijesti: brevo.sender_obavijesti,
       recipient_kontakt: brevo.recipient_kontakt,
       list_id_kontakt: brevo.list_id_kontakt,
-      list_id_obavijesti: brevo.list_id_obavijesti
+      list_id_obavijesti: brevo.list_id_obavijesti,
+      site_url: brevo.site_url
     };
 
     const kontaktRes = await supabase
@@ -280,11 +281,25 @@ const KontaktEditor = () => {
               placeholder="opcionalno"
             />
           </label>
+
+          <label className="admin-brevo-field">
+            <span className="admin-brevo-label">Javni URL stranice</span>
+            <span className="admin-brevo-desc">
+              Za poveznicu odjave u mailu dobrodošlice (npr. https://lincarnica.hr).
+            </span>
+            <input
+              type="url"
+              value={brevo.site_url}
+              onChange={(event) => setBrevoField('site_url', event.target.value)}
+              placeholder="https://lincarnica.hr"
+              autoComplete="off"
+            />
+          </label>
         </div>
 
         <p className="admin-brevo-note">
-          Za poveznice odjave u mailovima postavite Supabase Secret <code>SITE_URL</code> (javni URL
-          stranice). API key ovdje ima prednost nad Secretom.
+          Pretplata automatski dodaje kontakt u Brevo i šalje mail dobrodošlice (server-side).
+          Edge Functions i dalje koriste Supabase Secret <code>SITE_URL</code> ako je postavljen.
         </p>
       </section>
 

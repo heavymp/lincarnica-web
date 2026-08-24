@@ -185,6 +185,7 @@ create table if not exists public.brevo_settings (
   recipient_kontakt text not null default '',
   list_id_kontakt text not null default '',
   list_id_obavijesti text not null default '',
+  site_url text not null default '',
   updated_at timestamptz not null default now()
 );
 
