@@ -30,7 +30,7 @@ const toForm = (notice) => {
     important: notice.important,
     draft: notice.draft,
     date,
-    time: time === '12:00' ? '' : time
+    time
   };
 };
 
@@ -245,7 +245,9 @@ const NoticesEditor = () => {
             />
           </label>
         </div>
-        <p className="admin-hint">Bez datuma ostaje opća obavijest. Prošli datumi na stranici postaju sivi.</p>
+        <p className="admin-hint">
+          Datum je opcionalan. Vrijeme je također opcionalno — na stranici se prikazuje samo ako ga unesete.
+        </p>
 
         <div className="admin-toggles">
           <label className="admin-switch">

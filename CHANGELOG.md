@@ -14,6 +14,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Removed
 
+## [0.4.2] — 2026-08-24
+
+### Changed
+
+- Obavijesti show **time** on the public site only when it is set in `/admin`; date-only notices stay date-only.
+
 ## [0.4.1] — 2026-08-24
 
 ### Changed

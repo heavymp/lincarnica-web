@@ -52,24 +52,37 @@ export function isPastNotice(record) {
   return dateKey(record.happensAt) < todayKey();
 }
 
+/** Date-only events are stored at 00:00 (Zagreb). Midnight is not used as a real start time. */
+export function happensAtHasTime(value) {
+  if (!value) return false;
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return false;
+  return timeFmt.format(parsed) !== '00:00';
+}
+
 export function formatHappensAt(value) {
   if (!value) return '';
-  return dateFmt.format(new Date(value));
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return '';
+  const date = dateFmt.format(parsed);
+  if (!happensAtHasTime(value)) return date;
+  return `${date} u ${timeFmt.format(parsed)}`;
 }
 
 export function splitHappensAt(value) {
   if (!value) return { date: '', time: '' };
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return { date: '', time: '' };
+  const clock = timeFmt.format(parsed);
   return {
     date: todayKeyFmt.format(parsed),
-    time: timeFmt.format(parsed)
+    time: clock === '00:00' ? '' : clock
   };
 }
 
 export function joinHappensAt(date, time) {
   if (!date) return null;
-  const clock = time && time.length >= 4 ? time : '12:00';
+  const clock = time && /^\d{2}:\d{2}/u.test(time) ? time.slice(0, 5) : '00:00';
   const parsed = new Date(`${date}T${clock}:00`);
   if (Number.isNaN(parsed.getTime())) return null;
   return parsed.toISOString();
