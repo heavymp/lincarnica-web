@@ -14,6 +14,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Removed
 
+## [0.8.2] — 2026-08-24
+
+### Changed
+
+- Footer: privacy link on a separate subtle line below footer text and version.
+
 ## [0.8.1] — 2026-08-24
 
 ### Added

@@ -609,10 +609,30 @@ h1 {
   background: linear-gradient(to right, var(--primary), var(--accent), var(--primary));
 }
 
-.fineprint {
+.page-footer {
   margin-top: 2.5rem;
+}
+
+.fineprint {
+  margin: 0;
   font-size: 0.95rem;
   line-height: 1.5;
+  color: var(--muted);
+}
+
+.footer-legal {
+  margin: 1.35rem 0 0;
+  font-size: 0.8rem;
+  color: color-mix(in oklab, var(--muted) 68%, transparent);
+}
+
+.footer-legal a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.footer-legal a:hover {
   color: var(--muted);
 }
 
