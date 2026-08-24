@@ -14,6 +14,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Removed
 
+## [0.4.1] — 2026-08-24
+
+### Changed
+
+- Obavijest kind label **Festa** → **Fešta**.
+
 ## [0.4.0] — 2026-08-24
 
 ### Added

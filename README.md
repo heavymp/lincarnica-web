@@ -50,7 +50,7 @@ Uploading `dist/` to Hostinger alone does **not** update the database. Schema up
 2. **Authentication → Users → Add user** (email + password).
 3. Visit `https://your-domain/admin` and sign in.
 
-Kinds for obavijesti: Obavijest, Sastanak, Događaj, Festa. Past dated items stay visible but grey on the public site.
+Kinds for obavijesti: Obavijest, Sastanak, Događaj, Fešta. Past dated items stay visible but grey on the public site.
 
 ## Editable tables
 
@@ -113,6 +113,6 @@ No VPS required.
 
 ## Version
 
-- Source of truth: `package.json` → `"version"` (currently **0.4.0**).
+- Source of truth: `package.json` → `"version"` (currently **0.4.1**).
 - History: [`CHANGELOG.md`](./CHANGELOG.md).
 - On release: bump version, update changelog, then lint/build.

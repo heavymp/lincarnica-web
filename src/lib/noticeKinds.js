@@ -19,7 +19,7 @@ export const NOTICE_KINDS = [
   },
   {
     id: 'festa',
-    label: 'Festa',
+    label: 'Fešta',
     emoji: '🎉',
     hint: 'Proslava ili zabava'
   }
