@@ -135,35 +135,64 @@ const KontaktEditor = () => {
         />
       </label>
 
-      <details className="admin-advanced">
-        <summary>Napredno (Brevo)</summary>
-        <label>
-          Brevo list ID (kontakt)
-          <input
-            value={form.brevo_list_id}
-            onChange={(event) => setField('brevo_list_id', event.target.value)}
-          />
-        </label>
-        <label>
-          Brevo list ID (obavijesti pretplate)
-          <input
-            value={form.brevo_obavijesti_list_id}
-            onChange={(event) => setField('brevo_obavijesti_list_id', event.target.value)}
-          />
-        </label>
-        <label>
-          E-mail pošiljatelja / obavijesti
-          <input
-            type="email"
-            value={form.notify_email}
-            onChange={(event) => setField('notify_email', event.target.value)}
-          />
-        </label>
-        <p className="admin-hint">
-          `notify_email` šalje kontakt poruke i mailove pretplatnicima. Na Supabase secretima trebaju
-          `BREVO_API_KEY` i `SITE_URL` (za poveznice odjave).
+      <section className="admin-brevo" aria-labelledby="brevo-heading">
+        <div className="admin-brevo-head">
+          <h3 id="brevo-heading">Brevo</h3>
+          <p>
+            Postavke za <strong>Transactional Email</strong> i <strong>Contacts</strong>.
+            API key ostaje u Supabase Secrets (<code>BREVO_API_KEY</code>).
+          </p>
+        </div>
+
+        <div className="admin-brevo-grid">
+          <label className="admin-brevo-field">
+            <span className="admin-brevo-label">Sender email</span>
+            <span className="admin-brevo-desc">
+              Potvrđeni pošiljatelj iz Brevo → Transactional → Settings → Senders.
+              Koristi se za kontakt obrasce i obavijesti pretplatnicima.
+            </span>
+            <input
+              type="email"
+              value={form.notify_email}
+              onChange={(event) => setField('notify_email', event.target.value)}
+              placeholder="npr. info@vasadomena.hr"
+              autoComplete="email"
+            />
+          </label>
+
+          <label className="admin-brevo-field">
+            <span className="admin-brevo-label">List ID — Kontakt</span>
+            <span className="admin-brevo-desc">
+              ID liste iz Brevo → Contacts → Lists. Novi kontakti s obrasca dodaju se u ovu listu.
+            </span>
+            <input
+              inputMode="numeric"
+              value={form.brevo_list_id}
+              onChange={(event) => setField('brevo_list_id', event.target.value)}
+              placeholder="npr. 12"
+            />
+          </label>
+
+          <label className="admin-brevo-field">
+            <span className="admin-brevo-label">List ID — Obavijesti</span>
+            <span className="admin-brevo-desc">
+              Lista za pretplate na obavijesti (zvono na stranici). Ako je prazno, koristi se List ID —
+              Kontakt.
+            </span>
+            <input
+              inputMode="numeric"
+              value={form.brevo_obavijesti_list_id}
+              onChange={(event) => setField('brevo_obavijesti_list_id', event.target.value)}
+              placeholder="opcionalno"
+            />
+          </label>
+        </div>
+
+        <p className="admin-brevo-note">
+          Za poveznice odjave u mailovima postavite i Supabase Secret <code>SITE_URL</code> (javni
+          URL stranice).
         </p>
-      </details>
+      </section>
 
       <div className="admin-actions">
         <button type="submit" className="admin-primary" disabled={saving}>

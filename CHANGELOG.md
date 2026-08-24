@@ -14,6 +14,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Removed
 
+## [0.6.1] — 2026-08-24
+
+### Changed
+
+- Admin Brevo section: clearer layout and Brevo nomenclature (Sender email, List ID, Transactional / Contacts).
+
 ## [0.6.0] — 2026-08-24
 
 ### Added
