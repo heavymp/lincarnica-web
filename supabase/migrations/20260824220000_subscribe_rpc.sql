@@ -10,7 +10,7 @@ declare
   v_email text := lower(trim(p_email));
   v_row public.obavijesti_pretplatnici%rowtype;
 begin
-  if v_email is null or v_email !~* '^[^@\s]+@[^@\s]+\.[^@\s]+$' then
+  if v_email is null or v_email !~* '^[^@[:space:]]+@[^@[:space:]]+\.[^@[:space:]]+$' then
     raise exception 'invalid_email' using errcode = '22023';
   end if;
 

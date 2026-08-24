@@ -100,7 +100,7 @@ create table if not exists public.obavijesti_pretplatnici (
   active boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  constraint obavijesti_pretplatnici_email_check check (email ~* '^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$')
+  constraint obavijesti_pretplatnici_email_check check (email ~* '^[^@[:space:]]+@[^@[:space:]]+\.[^@[:space:]]+$')
 );
 
 create unique index if not exists idx_obavijesti_pretplatnici_email

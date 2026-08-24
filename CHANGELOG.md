@@ -14,6 +14,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Removed
 
+## [0.7.2] — 2026-08-24
+
+### Fixed
+
+- Subscribe RPC email validation: PostgreSQL has no `\s` in regex, so most addresses (with letter “s”) were rejected with 400.
+
 ## [0.7.1] — 2026-08-24
 
 ### Fixed
